@@ -13,13 +13,12 @@ function App() {
   const [connectionId, setConnectionId] = useState('');
 
   useEffect(() => {
-    const ws = new WebSocket('link to the websocket');
+    const ws = new WebSocket('wss://1cu604hg14.execute-api.us-east-1.amazonaws.com/production');
   
     ws.onopen = async () => {
       console.log('WebSocket connection established');
       try {
-      const response = await axios.get('link nuovo', { // funzione che va a prende il conn id DA MODIFICARE
-        //link vecchio: https://hkpujzbuu2.execute-api.us-east-1.amazonaws.com/prod/get-connection-id
+      const response = await axios.get('https://b36jz9mfbg.execute-api.us-east-1.amazonaws.com/prod/get-connection-id-nq', { 
           headers: {
             'Content-Type': 'application/json'
           }
@@ -67,7 +66,7 @@ function App() {
       if (text && connectionId) {
         console.log('Sending message:', text);
         console.log('ConnectionId:', connectionId);
-        const response = await axios.post('https://rzf142a7hc.execute-api.us-east-1.amazonaws.com/prod/enqueue', { //richiesta post per mettere in coda
+        const response = await axios.post('https://e009njynmk.execute-api.us-east-1.amazonaws.com/prod/process', { //richiesta post per mettere in coda
           message: text,
           connectionId: connectionId
         }, {
