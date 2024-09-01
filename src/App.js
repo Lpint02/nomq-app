@@ -4,71 +4,23 @@ import './App.css';
 
 function App() {
   const [text, setText] = useState('');
-  const [messages, setMessages] = useState([]);
   const [responseMessage, setResponseMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [title, setTitle] = useState('Insert the word to reverse');
-  const [showConnectedMessage, setShowConnectedMessage] = useState(false);
-  const [connectionId, setConnectionId] = useState('');
 
-  useEffect(() => {
-    const ws = new WebSocket('wss://1cu604hg14.execute-api.us-east-1.amazonaws.com/production');
-
-    ws.onopen = async () => {
-      console.log('WebSocket connection established');
-      try {
-        const response = await axios.get('https://b36jz9mfbg.execute-api.us-east-1.amazonaws.com/prod/get-connection-id-nq', {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        setConnectionId(response.data.connectionId);
-        setIsConnected(true);
-        setShowConnectedMessage(true);
-      } catch (error) {
-        console.error('Error fetching connectionId:', error);
-      }
-    };
-
-    ws.onmessage = (event) => {
-      console.log('Event received:', event);
-      const data = JSON.parse(event.data);
-      console.log('Data received:', data);
-      if (data.message) {
-        setMessages(prevMessages => [...prevMessages, data.message]);
-      }
-    };
-
-    ws.onerror = (event) => {
-      console.error('WebSocket error:', event);
-      setIsConnected(false);
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-      setIsConnected(false);
-    };
-
-    return () => {
-      ws.close();
-    };
-  }, []);
 
   const handleChange = (event) => {
     setText(event.target.value);
-    setShowConnectedMessage(false);
   };
 
   const handleClick = async () => {
     try {
-      if (text && connectionId) {
+      if (text) {
         console.log('Sending message:', text);
-        console.log('ConnectionId:', connectionId);
 
         const response = await axios.post('https://e009njynmk.execute-api.us-east-1.amazonaws.com/prod/process', {
           message: text,
-          connectionId: connectionId
         }, {
           headers: {
             'Content-Type': 'application/json'
@@ -92,7 +44,6 @@ function App() {
         }, 20000);
       }
     } catch (error) {
-      // Qui catturi l'errore causato dal timeout dell'API Gateway
       if (error.response && error.response.status === 504) {
         setResponseMessage('Request timed out.');
       } else {
@@ -115,11 +66,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1 className="title">{title}</h1>
-        {showConnectedMessage && (
-          <p className="connected-message">
-            WebSocket connection established, now you can insert your word
-          </p>
-        )}
         <input
           type="text"
           value={text}
@@ -128,26 +74,13 @@ function App() {
           placeholder="Enter your message"
           disabled={!isConnected}
         />
-        <button onClick={handleClick} disabled={!isConnected}>
+        <button onClick={handleClick}>
           Send Message
         </button>
         {responseMessage && (
           <p className={isError ? 'error-message' : 'success-message'}>
             {responseMessage}
           </p>
-        )}
-        {messages.length > 0 && (
-          <div className="messages-container">
-            <h2>Reversed words:</h2>
-            <ul>
-              {messages.map((msg, index) => (
-                <li key={index}>{msg}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {!isConnected && (
-          <p className="error-message">WebSocket is disconnected. Please refresh the page.</p>
         )}
       </header>
     </div>

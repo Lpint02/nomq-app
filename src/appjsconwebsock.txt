@@ -14,23 +14,23 @@ function App() {
 
   useEffect(() => {
     const ws = new WebSocket('wss://1cu604hg14.execute-api.us-east-1.amazonaws.com/production');
-  
+
     ws.onopen = async () => {
       console.log('WebSocket connection established');
       try {
-      const response = await axios.get('https://b36jz9mfbg.execute-api.us-east-1.amazonaws.com/prod/get-connection-id-nq', { 
+        const response = await axios.get('https://b36jz9mfbg.execute-api.us-east-1.amazonaws.com/prod/get-connection-id-nq', {
           headers: {
             'Content-Type': 'application/json'
           }
         });
         setConnectionId(response.data.connectionId);
-        setIsConnected(true); // Aggiorna lo stato di connessione
-        setShowConnectedMessage(true); // Mostra il messaggio di connessione
+        setIsConnected(true);
+        setShowConnectedMessage(true);
       } catch (error) {
         console.error('Error fetching connectionId:', error);
       }
     };
-  
+
     ws.onmessage = (event) => {
       console.log('Event received:', event);
       const data = JSON.parse(event.data);
@@ -39,22 +39,21 @@ function App() {
         setMessages(prevMessages => [...prevMessages, data.message]);
       }
     };
-  
+
     ws.onerror = (event) => {
       console.error('WebSocket error:', event);
       setIsConnected(false);
     };
-  
+
     ws.onclose = () => {
-      console.log('WebSocket connectionn closed');
+      console.log('WebSocket connection closed');
       setIsConnected(false);
     };
-  
+
     return () => {
       ws.close();
     };
   }, []);
-  
 
   const handleChange = (event) => {
     setText(event.target.value);
@@ -66,7 +65,8 @@ function App() {
       if (text && connectionId) {
         console.log('Sending message:', text);
         console.log('ConnectionId:', connectionId);
-        const response = await axios.post('https://e009njynmk.execute-api.us-east-1.amazonaws.com/prod/process', { 
+
+        const response = await axios.post('https://e009njynmk.execute-api.us-east-1.amazonaws.com/prod/process', {
           message: text,
           connectionId: connectionId
         }, {
@@ -74,6 +74,8 @@ function App() {
             'Content-Type': 'application/json'
           }
         });
+
+        // Se la richiesta ha successo
         setResponseMessage('Message sent successfully!');
         setIsError(false);
         setText('');
@@ -81,6 +83,7 @@ function App() {
         setTimeout(() => {
           setResponseMessage('');
         }, 20000);
+
       } else {
         setResponseMessage('The message field is empty.');
         setIsError(true);
@@ -89,8 +92,12 @@ function App() {
         }, 20000);
       }
     } catch (error) {
-      console.error('Error sending message:', error);
-      setResponseMessage('Error sending message');
+      // Qui catturi l'errore causato dal timeout dell'API Gateway
+      if (error.response && error.response.status === 504) {
+        setResponseMessage('Request timed out.');
+      } else {
+        setResponseMessage('Error sending message');
+      }
       setIsError(true);
       setTimeout(() => {
         setResponseMessage('');
@@ -107,10 +114,10 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-      <h1 className="title">{title}</h1>
+        <h1 className="title">{title}</h1>
         {showConnectedMessage && (
           <p className="connected-message">
-            Websocket connection established, now you can insert your word
+            WebSocket connection established, now you can insert your word
           </p>
         )}
         <input
