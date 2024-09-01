@@ -18,7 +18,7 @@ function App() {
     try {
       if (text) {
         console.log('Sending message:', text);
-
+  
         const response = await axios.post('https://e009njynmk.execute-api.us-east-1.amazonaws.com/prod/process', {
           message: text,
         }, {
@@ -26,16 +26,24 @@ function App() {
             'Content-Type': 'application/json'
           }
         });
-
-        // Se la richiesta ha successo
-        setResponseMessage('Message sent successfully!');
+  
+        console.log('API response:', response);
+  
+        // Verifica che la risposta sia quella attesa
+        if (response.status === 200 && response.data && response.data.message) {
+          // Mostra il messaggio elaborato
+          setResponseMessage(`Reversed message from server: ${response.data.message}`);
+        } else {
+          // Mostra un messaggio generico se non si riceve il campo "message"
+          setResponseMessage('Message sent successfully, but no reversed message returned.');
+        }
         setIsError(false);
         setText('');
         setTitle('Insert another word');
         setTimeout(() => {
           setResponseMessage('');
         }, 20000);
-
+  
       } else {
         setResponseMessage('The message field is empty.');
         setIsError(true);
@@ -44,10 +52,15 @@ function App() {
         }, 20000);
       }
     } catch (error) {
-      if (error.response && error.response.status === 504) {
-        setResponseMessage('Request timed out.');
+      console.error('Error response:', error.response); // Log dell'errore
+      if (error.response) {
+        if (error.response.status === 504) {
+          setResponseMessage('Request timed out.');
+        } else {
+          setResponseMessage(`Error sending message: ${error.response.status}`);
+        }
       } else {
-        setResponseMessage('Error sending message');
+        setResponseMessage('Network error or other issue.');
       }
       setIsError(true);
       setTimeout(() => {
