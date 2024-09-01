@@ -72,7 +72,6 @@ function App() {
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           placeholder="Enter your message"
-          disabled={!isConnected}
         />
         <button onClick={handleClick}>
           Send Message
