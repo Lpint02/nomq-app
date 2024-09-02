@@ -19,7 +19,7 @@ function App() {
       if (text) {
         console.log('Sending message:', text);
   
-        const response = await axios.post('https://9yqnloa987.execute-api.us-east-1.amazonaws.com/prod/process', {
+        const response = await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
           message: text,
         }, {
           headers: {
