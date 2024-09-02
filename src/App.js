@@ -53,14 +53,12 @@ function App() {
       }
     } catch (error) {
       console.error('Error response:', error.response); // Log dell'errore
-      if (error.response) {
-        if (error.response.status === 504) {
-          setResponseMessage('Request timed out.');
-        } else {
-          setResponseMessage(`Error sending message: ${error.response.status}`);
-        }
+      if (!error.response) {
+        setResponseMessage('Request timed out or CORS issue.');
+      } else if (error.response.status === 504) {
+        setResponseMessage('Request timed out.');
       } else {
-        setResponseMessage('Network error or other issue.');
+        setResponseMessage(`Error sending message: ${error.response.status}`);
       }
       setIsError(true);
       setTimeout(() => {
