@@ -4,9 +4,9 @@ import './App.css';
 
 function App() {
   const [text, setText] = useState('');
-  const [responseMessage, setResponseMessage] = useState('');
+  const [messages, setMessages] = useState([]);
   const [isError, setIsError] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
+  const [responseMessage, setResponseMessage] = useState('');
   const [title, setTitle] = useState('Insert the word to reverse');
 
 
@@ -31,13 +31,14 @@ function App() {
   
         // Verifica che la risposta sia quella attesa
         if (response.status === 200 && response.data && response.data.message) {
-          // Mostra il messaggio elaborato
-          setResponseMessage(`Reversed message from server: ${response.data.message}`);
+          setMessages(prevMessages => [...prevMessages, response.data.message]);
+          setResponseMessage(`Message sent successfully!`);
+          setIsError(false);
         } else {
           // Mostra un messaggio generico se non si riceve il campo "message"
           setResponseMessage('Message sent successfully, but no reversed message returned.');
+          setIsError(false);
         }
-        setIsError(false);
         setText('');
         setTitle('Insert another word');
         setTimeout(() => {
@@ -52,10 +53,9 @@ function App() {
         }, 20000);
       }
     } catch (error) {
-      console.error('Error response:', error.response); // Log dell'errore
-      if (!error.response) {
-        setResponseMessage('Request timed out or CORS issue.');
-      } else if (error.response.status === 504) {
+      console.error('Error response:', error.response); 
+      if (!error.response || error.response.status === 504) {
+        // Considera un timeout o un errore CORS come un timeout
         setResponseMessage('Request timed out.');
       } else {
         setResponseMessage(`Error sending message: ${error.response.status}`);
@@ -91,6 +91,16 @@ function App() {
           <p className={isError ? 'error-message' : 'success-message'}>
             {responseMessage}
           </p>
+        )}
+        {messages.length > 0 && (
+          <div className="messages-container">
+            <h2>Reversed words:</h2>
+            <ul>
+              {messages.map((msg, index) => (
+                <li key={index}>{msg}</li>
+              ))}
+            </ul>
+          </div>
         )}
       </header>
     </div>
