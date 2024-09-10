@@ -19,28 +19,6 @@
   color: #e9b51b;
 }
 
-input[type="text"] { 
-  padding: 20px; 
-  margin: 20px; 
-  font-size: 24px;
-  color:#9b2032; 
-  width: 80%; 
-  max-width: 600px; 
-  border: 3px solid #9b2032;
-  border-radius: 5px;
-  box-shadow: 0px 4px 10px rgba(138, 5, 5, 0.1); 
-  transition: box-shadow 0.3s ease; 
-} 
-
-input[type="text"]:focus {
-  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2); 
-}
-
-input[type="text"]::placeholder {
-  color: #9b2032; 
-}
-
- 
 button { 
   padding: 20px 40px; 
   margin: 20px; 
@@ -80,43 +58,184 @@ button:hover {
   margin-bottom: 20px;
 }
 
-/* Contenitore dei messaggi */
-.messages-container {
-  width: 80%;
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
+.uploader-container {
+  max-width: 450px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+.dropzone {
+  border: 3px dashed #cccccc;
+  padding: 50px;
+  border-radius: 10px;
+  background-color: white;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 30px;
+}
+
+.dropzone.dragging {
   background-color: #fffeef;
-  border: 3px solid #9b2032;
-  border-radius: 5px;
-  color: #9b2032;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  border-color: #9b2032;
 }
 
-/* Ridimensiona contenitore se non ci sono messaggi */
-.messages-container.empty {
-  height: 50px; /* Altezza ridotta quando vuoto */
-  padding: 20px;
-  justify-content: center; /* Centra il titolo verticalmente */
-}
-
-.messages-container h2 {
+.dropzone p {
+  color: #888888;
+  font-size: 18px;
   margin: 0;
 }
 
-.messages-container ul {
-  list-style-type: disc;
-  padding-left: 40px;
-  margin: 10px 0;
-  width: 100%;
+.btn {
+  background-color: #9b2032;
+  color: #fffeef;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
 }
 
-.messages-container li {
-  margin: 5px 0;
-  text-align: left;
-  color: #9b2032;
+.btn:hover {
+  background-color: #974e46;
+}
+
+.btn:focus {
+  outline: none;
+}
+
+body {
+  background-color: #fffeef;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+}
+
+.title-container h2 {
+  margin-right: 10px;
+  color: #8B0000;
+  font-size: 28px; 
+  margin-top: -20px; 
+  text-align: center;
+}
+
+.info-icon-container {
+  position: relative;
+  display: inline-block;
+}
+
+.info-icon {
+  font-size: 18px;
+  color: #333;
+  cursor: pointer;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: 200px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Posizionamento sopra l'icona */
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* Punta la freccia verso il basso */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.info-icon-container:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.progress-container {
+  width: 100%;
+  background-color: #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-top: 20px;
+  height: 30px; 
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #9b2032;
+  text-align: center;
+  line-height: 30px; 
+  color: white;
+  font-size: 16px;
+  transition: width 0.4s ease;
+}
+
+.files-title {
+  font-size: 24px; 
+  font-weight: bold;
+  color: #9b2032; 
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.uploaded-files-list {
+  list-style-type: none;  
+  margin-top: 20px;
+  padding-left: 0;
+  font-size: 1.5em;
+  text-align: center;
+  width: 100%;  
+}
+
+.uploaded-files-list li {
+  display: flex;  
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  text-align: center;  
+  white-space: nowrap;  
+}
+
+.uploaded-files-list li::before {
+  content: '•'; 
+  display: inline-block;
+  margin-right: 10px;  
+  font-size: 1.5em;
+  vertical-align: middle;
+}
+
+.semaforo {
+  font-size: 30px;
+  margin-left: 18px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.semaforo.red {
+  color: red;
+}
+
+.semaforo.green {
+  color: green;
+}
+
+.semaforo.blue {
+  color: rgb(39, 148, 199);
 }
