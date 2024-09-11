@@ -28,7 +28,6 @@ function App() {
     setFile(selectedFile);
     setUploadProgress(0);
     setSuccess(false);
-    setStatusColor('');
   };
 
   const handleDragOver = (event) => {
@@ -130,7 +129,6 @@ function App() {
       setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
       uploadedFile.name === file.name ?{ ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
       ));
-      setStatusColor('red');
     } finally {
       setIsUploading(false); // Reset dello stato di caricamento
     }
