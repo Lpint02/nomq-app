@@ -11,7 +11,6 @@ function App() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [statusColor, setStatusColor] = useState('');
 
   const togglePopup = () => {
     setIsPopupOpen(!isPopupOpen); // Cambia lo stato del popup
@@ -104,10 +103,10 @@ function App() {
         ...prevFiles,
         { name: file.name, status: 'Caricamento completo, Elaborazione in corso...', color: 'blue' }
       ]);
-      setStatusColor('blue');  // Imposta il semaforo blu
       setSuccess(true);
       setFile(null); // Resetta il file
       setUploadProgress(0);
+      alert('File caricato con successo!');
 
       // Step 3: Invia i dettagli del file all'API
       const processResponse = await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
@@ -124,7 +123,6 @@ function App() {
         setUploadedFiles(prevFiles => prevFiles.map(file =>
           file.name === objectKey ? { ...file, status: 'Elaborazione completata', color: 'green' } : file
         ));
-        setStatusColor('green');
       }
 
     } catch (error) {
@@ -214,8 +212,7 @@ function App() {
             {uploadedFiles.map((uploadedFile, index) => (
               <li key={index}>
                 <span>{uploadedFile.name} - {uploadedFile.status}</span>
-                {statusColor && <i className={`fas fa-circle semaforo ${statusColor}`} />}
-                {/* <i className={`fas fa-circle ${uploadedFile.color === 'red' ? 'semaforo red' : 'semaforo green'}`}></i> */}
+                {uploadedFile.color && <i className={`fas fa-circle semaforo ${uploadedFile.color}`} />}
               </li>
             ))}
           </ul>
