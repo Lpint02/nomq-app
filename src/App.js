@@ -125,10 +125,19 @@ function App() {
       }
 
     } catch (error) {
-      // Timeout case
+      // Mostra il messaggio di errore ricevuto dal backend
+      const errorMessage = error.response && error.response.data && error.response.data.message
+        ? error.response.data.message
+        : 'Errore sconosciuto durante l\'elaborazione del file';
+
+      // Aggiorna l'errore nel frontend
+      setError(errorMessage);
+
+      // Aggiorna il semaforo a rosso con un errore
       setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
-      uploadedFile.name === file.name ?{ ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
+        uploadedFile.name === file.name ? { ...uploadedFile, status: errorMessage, color: 'red' } : uploadedFile
       ));
+
     } finally {
       setIsUploading(false); // Reset dello stato di caricamento
     }
