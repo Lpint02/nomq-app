@@ -162,7 +162,7 @@ function App() {
               4. Il vettore 𝑏 deve essere rappresentato come una serie di elementi separati da virgole <br />
               5. Il file deve essere salvato in formato .txt <br />
               6. La dimensione massima del file è 125 MB. <br />
-              Se hai bisogno di assistenza per generare la matrice, consulta il codice disponibile nella repo GitHub.<br />
+              Se hai bisogno di assistenza per generare la matrice, consulta il codice disponibile nella <a href="https://github.com/Lpint02/generatematrix/tree/main" target="_blank">repo GitHub</a>.<br />
             </p>
           </div>
         </div>
