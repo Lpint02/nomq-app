@@ -11,6 +11,7 @@ function App() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [statusColor, setStatusColor] = useState('');
 
   const togglePopup = () => {
     setIsPopupOpen(!isPopupOpen); // Cambia lo stato del popup
@@ -28,6 +29,7 @@ function App() {
     setFile(selectedFile);
     setUploadProgress(0);
     setSuccess(false);
+    setStatusColor('');
   };
 
   const handleDragOver = (event) => {
@@ -81,8 +83,6 @@ function App() {
         const bucketName = response.data.bucketName; 
         const objectKey = response.data.key; 
         console.log('URL presigned ricevuta:', uploadUrl);
-        console.log('Nome del bucket:', bucketName);
-        console.log('Object key:', objectKey);
         setError('');
 
         // Step 2: Carica il file usando la URL presigned
@@ -96,8 +96,18 @@ function App() {
         }
       });
 
+      // Aggiorna l'elenco dei file caricati, imposta il semaforo blu
+      setUploadedFiles(prevFiles => [
+        ...prevFiles,
+        { name: file.name, status: 'Caricamento completo, Elaborazione in corso...', color: 'blue' }
+      ]);
+      setStatusColor('blue');  // Imposta il semaforo blu
+      setSuccess(true);
+      setFile(null); // Resetta il file
+      setUploadProgress(0);
+
       // Step 3: Invia i dettagli del file all'API
-      await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
+      const processResponse = await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
         bucketname: bucketName,
         objectkey: objectKey
       }, {
@@ -106,17 +116,22 @@ function App() {
         }
       });
 
-      // Aggiorna l'elenco dei file caricati
-      setUploadedFiles(prevFiles => [
-        ...prevFiles,
-        { name: file.name, status: 'Caricamento completo', color: 'red' } 
-      ]);
-      setSuccess(true);
-      setFile(null); // Resetta il file
-      setUploadProgress(0);
-      alert('File caricato con successo!');
+      if (processResponse.status === 200) {
+        // Successo, aggiorna il semaforo a verde
+        setUploadedFiles(prevFiles => prevFiles.map(file =>
+          file.name === objectKey ? { ...file, status: 'Elaborazione completata', color: 'green' } : file
+        ));
+        setStatusColor('green');
+      }
 
     } catch (error) {
+      if (error.response && error.response.status === 504) {
+        // Timeout case
+        setUploadedFiles(prevFiles => prevFiles.map(file =>
+          file.name === objectKey ? { ...file, status: 'Error 504 Gateway Timeout', color: 'red' } : file
+        ));
+        setStatusColor('red');
+      }
       console.error('Errore durante il caricamento del file:', error);
       setError('Errore durante il caricamento del file');
     } finally {
@@ -200,8 +215,9 @@ function App() {
             {uploadedFiles.map((uploadedFile, index) => (
               <li key={index}>
                 <span>{uploadedFile.name} - {uploadedFile.status}</span>
-                <i className={`fas fa-circle ${uploadedFile.color === 'red' ? 'semaforo red' : 'semaforo green'}`}></i>
-                </li>
+                {statusColor && <i className={`fas fa-circle semaforo ${statusColor}`} />}
+                {/* <i className={`fas fa-circle ${uploadedFile.color === 'red' ? 'semaforo red' : 'semaforo green'}`}></i> */}
+              </li>
             ))}
           </ul>
         </>
