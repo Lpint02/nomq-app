@@ -153,6 +153,10 @@ body {
   margin-top: 20px;
 }
 
+.popup-content p {
+  white-space: pre-line;
+}
+
 .info-icon-container {
   position: relative;
   display: inline-block;
