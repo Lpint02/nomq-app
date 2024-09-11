@@ -69,6 +69,9 @@ function App() {
 
     setIsUploading(true);
 
+    let objectKey = '';  
+    let bucketName = '';
+
     try {
         // Step 1: Ottieni la URL presigned
         const response = await axios.post('https://fuggxb8035.execute-api.us-east-1.amazonaws.com/prod/get-url-presigned', { 
@@ -127,8 +130,8 @@ function App() {
     } catch (error) {
       if (error.response && error.response.status === 504) {
         // Timeout case
-        setUploadedFiles(prevFiles => prevFiles.map(file =>
-          file.name === objectKey ? { ...file, status: 'Error 504 Gateway Timeout', color: 'red' } : file
+        setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
+          uploadedFile.name === file.name ?{ ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
         ));
         setStatusColor('red');
       }
