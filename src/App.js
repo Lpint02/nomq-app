@@ -10,6 +10,11 @@ function App() {
   const [success, setSuccess] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen); // Cambia lo stato del popup
+  };
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -38,6 +43,12 @@ function App() {
     event.preventDefault();
     setIsDragging(false);
     const droppedFile = event.dataTransfer.files[0];
+
+    if (droppedFile.size > 126 * 1024 * 1024) {
+      alert('Il file è troppo grande. La dimensione massima consentita è 125MB.');
+      return;
+    }
+
     setFile(droppedFile);
     setUploadProgress(0);
     setSuccess(false);
@@ -58,7 +69,7 @@ function App() {
 
     try {
         // Step 1: Ottieni la URL presigned
-        const response = await axios.post('https://hym80goqc7.execute-api.us-east-1.amazonaws.com/prod/get-url-presigned', { //DA CAMBIARE
+        const response = await axios.post('https://fuggxb8035.execute-api.us-east-1.amazonaws.com/prod/get-url-presigned', { 
             filename: file.name
         }, {
             headers: {
@@ -70,8 +81,8 @@ function App() {
         const bucketName = response.data.bucketName; 
         const objectKey = response.data.key; 
         console.log('URL presigned ricevuta:', uploadUrl);
-        //console.log('Nome del bucket:', bucketName);
-        //console.log('Object key:', objectKey);
+        console.log('Nome del bucket:', bucketName);
+        console.log('Object key:', objectKey);
         setError('');
 
         // Step 2: Carica il file usando la URL presigned
@@ -86,14 +97,13 @@ function App() {
       });
 
       // Step 3: Invia i dettagli del file all'API
-      await axios.post('https://vzxoqe9982.execute-api.us-east-1.amazonaws.com/dev/setretrieveinfo', { //DA CAMBIARE
-        bucketname: bucketName,
-        objectkey: objectKey,
-      }, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-      });
+      //await axios.post('nuova url che manda i dettagli direttamente in esecuzione', { //DA CAMBIARE
+        //bucketname: bucketName,
+        //objectkey: objectKey,
+      //}, {
+        //  'Content-Type': 'application/json'
+        //}
+      //});
 
       // Aggiorna l'elenco dei file caricati
       setUploadedFiles(prevFiles => [
@@ -124,6 +134,27 @@ function App() {
 
   return (
     <div className="uploader-container">
+      <div className="title-container">
+        <h2 onClick={togglePopup} style={{ cursor: 'pointer' }}>Allega qui il tuo file: (clicca per maggiori info)</h2>
+      </div>
+
+      {isPopupOpen && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <button className="popup-close" onClick={togglePopup}>X</button>
+            <h2>Informazioni sul formato corretto del file</h2>
+            <p>
+              Quando si parla di costruzione dal basso, si intende generalmente la ripresa del gioco dalla rimessa dal fondo che inizia con un calcio del portiere verso i giocatori più prossimi nella sua porzione di campo. 
+              La squadra è chiamata a costruire il gioco dal basso anche quando la palla arretra verso il proprio portiere, costringendo tutti i reparti a ripiegare per iniziare una nuova azione coinvolgendo l’estremo difensore. 
+              Spesso inoltre, la scelta di far arretrare il pallone rappresenta la precisa scelta di  attrarre gli avversari ampliando il campo a disposizione: una sorta di invito al pressing in modo da  disordinare la loro struttura 
+              difensiva e generare una superiorità numerica o ottenere vantaggi in termini di spazi da attaccare.
+              Così intesa, la costruzione dal basso non presenta tratti peculiari; ciò che la caratterizza è la sua interpretazione.
+              Ad esempio, il giocatore può scegliere di verticalizzare subito il gioco alla ricerca di un compagno nella zona di centrocampo o verso la metà campo difensiva avversaria. In alternativa, le squadra può scegliere di opporsi all’attacco degli avversari e alla loro disposizione attraverso una costruzione fatta di passaggi ravvicinati e continue ricerche di linee di passaggio per superare le linee di pressione avversarie, aggredendo quindi gli spazi in modo progressivo e senza scavalcarli con un rilancio in avanti.
+            </p>
+          </div>
+        </div>
+      )}
+    
       <div
         className={`dropzone ${isDragging ? 'dragging' : ''}`}
         onDragOver={handleDragOver}
@@ -133,7 +164,7 @@ function App() {
         {file ? (
           <p>{file.name}</p>
         ) : (
-          <p>Trascina un file qui o clicca per selezionare un file</p>
+          <p>Trascina un file qui o clicca per selezionare un file. Dimensione massima: 125MB. </p>
         )}
         <input
           type="file"
@@ -142,8 +173,10 @@ function App() {
           id="fileInput"
         />
       </div>
-      <button className="btn" onClick={() => document.getElementById('fileInput').click()}>Seleziona File</button>
-      <button className="btn" onClick={uploadFile} style={{ marginLeft: '10px' }}>
+      <button className="btn" onClick={() => document.getElementById('fileInput').click()} >
+        Seleziona File
+      </button>
+      <button className="btn" onClick={uploadFile} style={{ marginLeft: '10px' }} >
         Carica File
       </button>
 
