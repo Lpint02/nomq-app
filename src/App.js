@@ -97,13 +97,14 @@ function App() {
       });
 
       // Step 3: Invia i dettagli del file all'API
-      //await axios.post('nuova url che manda i dettagli direttamente in esecuzione', { //DA CAMBIARE
-        //bucketname: bucketName,
-        //objectkey: objectKey,
-      //}, {
-        //  'Content-Type': 'application/json'
-        //}
-      //});
+      await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
+        bucketname: bucketName,
+        objectkey: objectKey
+      }, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+      });
 
       // Aggiorna l'elenco dei file caricati
       setUploadedFiles(prevFiles => [
