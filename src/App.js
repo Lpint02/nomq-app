@@ -128,15 +128,11 @@ function App() {
       }
 
     } catch (error) {
-      if (error.response) {
-        // Timeout case
-        setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
-          uploadedFile.name === file.name ?{ ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
-        ));
-        setStatusColor('red');
-      }
-      console.error('Errore durante il caricamento del file:', error);
-      setError('Errore durante il caricamento del file');
+      // Timeout case
+      setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
+      uploadedFile.name === file.name ?{ ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
+      ));
+      setStatusColor('red');
     } finally {
       setIsUploading(false); // Reset dello stato di caricamento
     }
