@@ -128,7 +128,7 @@ function App() {
       }
 
     } catch (error) {
-      if (error.response && error.response.status === 504) {
+      if (error.response) {
         // Timeout case
         setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
           uploadedFile.name === file.name ?{ ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
