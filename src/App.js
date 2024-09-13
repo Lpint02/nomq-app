@@ -10,6 +10,7 @@ function App() {
   const [success, setSuccess] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   const togglePopup = () => {
@@ -107,6 +108,9 @@ function App() {
       setUploadProgress(0);
       alert('File caricato con successo!');
 
+      setIsUploading(false);
+      setIsProcessing(true); 
+
       // Step 3: Invia i dettagli del file all'API
       const processResponse = await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
         bucketname: bucketName,
@@ -135,7 +139,6 @@ function App() {
           ));
         }
       } else {
-        // Errore generico
         setUploadedFiles(prevFiles => prevFiles.map(uploadedFile =>
           uploadedFile.name === file.name ? { ...uploadedFile, status: 'Error 504 Gateway Timeout', color: 'red' } : uploadedFile
         ));
