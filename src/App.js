@@ -26,6 +26,10 @@ function App() {
 
   const handleFileSelect = (event) => {
     const selectedFile = event.target.files[0];
+    if (selectedFile.size > 126 * 1024 * 1024) {
+      alert('Il file è troppo grande. La dimensione massima consentita è 125MB.');
+      return;
+    }
     setFile(selectedFile);
     setUploadProgress(0);
     setSuccess(false);
@@ -68,9 +72,6 @@ function App() {
 
     setIsUploading(true);
 
-    let objectKey = '';  
-    let bucketName = '';
-
     try {
         // Step 1: Ottieni la URL presigned
         const response = await axios.post('https://fuggxb8035.execute-api.us-east-1.amazonaws.com/prod/get-url-presigned', { 
@@ -107,9 +108,10 @@ function App() {
       setFile(null); // Resetta il file
       setUploadProgress(0);
       alert('File caricato con successo!');
-
+    
       setIsUploading(false);
       setIsProcessing(true); 
+      
 
       // Step 3: Invia i dettagli del file all'API
       const processResponse = await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
@@ -120,13 +122,14 @@ function App() {
             'Content-Type': 'application/json'
         }
       });
-
+      
       if (processResponse.status === 200) {
         // Successo, aggiorna il semaforo a verde
         setUploadedFiles(prevFiles => prevFiles.map(file =>
-          file.name === objectKey ? { ...file, status: 'Elaborazione completata', color: 'green' } : file
+        file.name === objectKey ? { ...file, status: 'Elaborazione completata', color: 'green' } : file
         ));
       }
+
 
     } catch (error) {
       if (error.response) {
@@ -158,15 +161,15 @@ function App() {
   }, [success]);
 
   return (
-    <div className="uploader-container">
+    <div className="App">
+    <div className="centered-container">
       <div className="title-container">
-        <h2 onClick={togglePopup} style={{ cursor: 'pointer' }}>Allega qui il tuo file: (clicca per maggiori info)</h2>
+        <h1 class="title">Solver per Sistemi di Equazioni Lineari di Grandi Dimensioni</h1>
       </div>
 
       {isPopupOpen && (
         <div className="popup-overlay">
           <div className="popup-content">
-            <button className="popup-close" onClick={togglePopup}>X</button>
             <h2>Informazioni sul formato corretto del file</h2>
             <p>
               Questa applicazione web restituisce il vettore soluzione x del sistema 𝐴𝑥=𝑏. Per garantire che il file venga elaborato correttamente, assicurati che il file soddisfi le seguenti caratteristiche: <br />
@@ -176,45 +179,56 @@ function App() {
               4. Il vettore 𝑏 deve essere rappresentato come una serie di elementi separati da virgole <br />
               5. Il file deve essere salvato in formato .txt <br />
               6. La dimensione massima del file è 125 MB. <br />
-              Se hai bisogno di assistenza per generare la matrice, consulta il codice disponibile nella <a href="https://github.com/Lpint02/generatematrix/tree/main" target="_blank">repo GitHub</a>.<br />
+              Se hai bisogno di assistenza per generare la matrice, consulta il codice disponibile nella repo GitHub.<br />
             </p>
+            <button className="popup-close" onClick={togglePopup}>X</button>
           </div>
         </div>
       )}
     
-      <div
-        className={`dropzone ${isDragging ? 'dragging' : ''}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        {file ? (
-          <p>{file.name}</p>
-        ) : (
-          <p>Trascina un file qui o clicca per selezionare un file. Dimensione massima: 125MB. </p>
-        )}
-        <input
-          type="file"
-          onChange={handleFileSelect}
-          style={{ display: 'none' }}
-          id="fileInput"
-        />
-      </div>
-      <button className="btn" onClick={() => document.getElementById('fileInput').click()} >
-        Seleziona File
-      </button>
-      <button className="btn" onClick={uploadFile} style={{ marginLeft: '10px' }} >
-        Carica File
-      </button>
-
-      
-      {uploadProgress > 0 && (
-        <div className="progress-container">
-          <div className="progress-bar" style={{ width: `${uploadProgress}%` }}>
-            {uploadProgress}%
-          </div>
+      <div className="uploader-container">
+        <div
+          className={`dropzone ${isDragging ? 'dragging' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {file ? (
+            <p style={{fontSize:'1.6em'}}>{file.name}</p>
+          ) : (
+            <p style={{fontSize:'1.6em'}}>
+              Trascina qui il tuo file di input. Per maggiori informazioni clicca qui
+              <button
+                onClick={togglePopup} 
+                style={{ cursor: 'pointer', background: 'none', border: 'none',  boxShadow: 'none', marginLeft: '-15px' }}
+              >
+                <i className="fas fa-info-circle info-icon"></i>
+              </button>
+            </p>
+          )}
+          <input
+            type="file"
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+            id="fileInput"
+            disabled={!IsConnected}
+          />
         </div>
-      )}
+
+        <button className="btn" onClick={() => document.getElementById('fileInput').click()} >
+          Seleziona File
+        </button>
+        <button className="btn" onClick={uploadFile} style={{ marginLeft: '10px' }} >
+          Carica File
+        </button>
+
+        {uploadProgress > 0 && (
+          <div className="progress-container">
+            <div className="progress-bar" style={{ width: `${uploadProgress}%` }}>
+              {uploadProgress}%
+            </div>
+          </div>
+        )}
 
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>Caricamento completato con successo resta in attesa!</p>}
@@ -222,17 +236,34 @@ function App() {
       {uploadedFiles.length > 0 && (
         <>
           <h2 className="files-title">Matrici in elaborazione o elaborate</h2>
-          <ul className="uploaded-files-list">
-            {uploadedFiles.map((uploadedFile, index) => (
-              <li key={index}>
-                <span>{uploadedFile.name} - {uploadedFile.status}</span>
-                {uploadedFile.color && <i className={`fas fa-circle semaforo ${uploadedFile.color}`} />}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+          <div className="file-processing-table-container">
+            <table className="file-processing-table">
+              <thead>
+                <tr>
+                  <th>Nome del file</th>
+                  <th>Stato</th>
+                </tr>
+              </thead>
+              <tbody>
+                {uploadedFiles.map((uploadedFile, index) => (
+                  <tr key={index}>
+                    <td>{uploadedFile.name}</td>
+                    <td className="semaforo-container">
+                      {uploadedFile.status}
+                    <span> 
+                      <i className={`fas fa-circle semaforo ${uploadedFile.color}`} style={{ display: 'block' }}></i>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    )}
     </div>
+  </div>
+</div>
   );
 }
 
