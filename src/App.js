@@ -211,7 +211,6 @@ function App() {
             onChange={handleFileSelect}
             style={{ display: 'none' }}
             id="fileInput"
-            disabled={!IsConnected}
           />
         </div>
 
