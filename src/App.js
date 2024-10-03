@@ -126,7 +126,7 @@ function App() {
       if (processResponse.status === 200) {
         // Successo, aggiorna il semaforo a verde
         setUploadedFiles(prevFiles => prevFiles.map(file =>
-        file.name === objectKey ? { ...file, status: 'Elaborazione completata', color: 'green' } : file
+        file.name === objectKey ? { ...file, status: `Elaborazione completata in ${data.time.toFixed(6)} secondi`, color: 'green' } : file
         ));
       }
 
