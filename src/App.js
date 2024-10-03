@@ -112,6 +112,7 @@ function App() {
       setIsUploading(false);
       setIsProcessing(true); 
       
+      const startTime = Date.now();
 
       // Step 3: Invia i dettagli del file all'API
       const processResponse = await axios.post('https://a9icm55wze.execute-api.us-east-1.amazonaws.com/prod/process', {
@@ -122,11 +123,14 @@ function App() {
             'Content-Type': 'application/json'
         }
       });
-      
+
+      const endTime = Date.now(); 
+      const elapsedTime = (endTime - startTime) / 1000; 
+
       if (processResponse.status === 200) {
         // Successo, aggiorna il semaforo a verde
         setUploadedFiles(prevFiles => prevFiles.map(file =>
-        file.name === objectKey ? { ...file, status: `Elaborazione completata in ${data.time.toFixed(6)} secondi`, color: 'green' } : file
+        file.name === objectKey ? { ...file, status: `Elaborazione completata in ${elapsedTime.toFixed(6)} secondi`, color: 'green' } : file
         ));
       }
 
